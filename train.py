@@ -124,11 +124,61 @@ def parse_args() -> argparse.Namespace:
         default=42,
         help="Random seed for reproducibility (default: 42)",
     )
+    parser.add_argument(
+        "--check_drift",
+        action="store_true",
+        help="Bonus (+5 marks): Compare mean/std of logged predictions.log against training baseline.",
+    )
     return parser.parse_args()
+
+
+def run_drift_check() -> None:
+    log_path = "predictions.log"
+    if not os.path.exists(DATA_PATH):
+        raise FileNotFoundError(f"Training data not found at {DATA_PATH}")
+    if not os.path.exists(log_path):
+        print(f"No {log_path} file found yet. Send requests to POST /predict first.")
+        return
+
+    train_df = pd.read_csv(DATA_PATH)
+    records = []
+    with open(log_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                records.append(pd.Series(eval(line) if line.startswith("{") is False else __import__("json").loads(line)))
+
+    if not records:
+        print("predictions.log is empty.")
+        return
+
+    prod_df = pd.DataFrame(records)
+    print("\n=== DATA DRIFT MONITORING REPORT (Training Baseline vs. Logged Requests) ===")
+    print(f"Training Samples: {len(train_df)} | Logged Production Requests: {len(prod_df)}\n")
+    header = f"{'Feature':<26} | {'Train Mean (Std)':<20} | {'Prod Mean (Std)':<20} | {'Z-Shift':<8} | {'Status'}"
+    print(header)
+    print("-" * len(header))
+
+    for col in NUMERIC_FEATURES:
+        t_mean = float(train_df[col].mean())
+        t_std = float(train_df[col].std()) or 1e-6
+        p_mean = float(prod_df[col].mean())
+        p_std = float(prod_df[col].std()) if len(prod_df) > 1 else 0.0
+        z_shift = abs(p_mean - t_mean) / t_std
+        status = "DRIFT ALERT (>1.5 SD)" if z_shift > 1.5 else "STABLE"
+        print(
+            f"{col:<26} | {t_mean:>7.2f} ({t_std:>6.2f})   | {p_mean:>7.2f} ({p_std:>6.2f})   | {z_shift:>6.2f}   | {status}"
+        )
+    print("=" * len(header))
+
 
 
 def main() -> None:
     args = parse_args()
+
+    if args.check_drift:
+        run_drift_check()
+        return
 
     if not os.path.exists(DATA_PATH):
         raise FileNotFoundError(f"Dataset not found at {DATA_PATH}")
