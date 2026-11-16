@@ -1,5 +1,7 @@
 import argparse
 import os
+import pathlib
+import sqlite3
 import joblib
 import mlflow
 import numpy as np
@@ -190,6 +192,17 @@ def main() -> None:
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=args.random_state
     )
+
+    if os.path.exists("mlflow.db"):
+        with sqlite3.connect("mlflow.db") as conn:
+            rows = conn.execute("SELECT experiment_id FROM experiments").fetchall()
+            for (exp_id,) in rows:
+                uri = pathlib.Path(f"mlruns/{exp_id}").resolve().as_uri()
+                conn.execute(
+                    "UPDATE experiments SET artifact_location = ? WHERE experiment_id = ?",
+                    (uri, exp_id),
+                )
+            conn.commit()
 
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(EXPERIMENT_NAME)
