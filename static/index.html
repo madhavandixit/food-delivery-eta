@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Delivery ETA Prediction System | CSL236 MLOps</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-border: #334155;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .title-group h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .title-group p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .badge-bar {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      color: #fdba74;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .presets {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
+    .preset-btn {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: #fdba74;
+    }
+    .preset-btn.danger:hover {
+      border-color: var(--danger);
+      color: #fca5a5;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.95rem;
+    }
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .field label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .field input, .field select {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.55rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.92rem;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .submit-btn {
+      margin-top: 1.25rem;
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .submit-btn:hover { background: var(--accent-hover); }
+    .eta-box {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 1.25rem;
+    }
+    .eta-value {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .eta-window {
+      margin-top: 0.35rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .tips-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .tips-list li {
+      background: rgba(15, 23, 42, 0.6);
+      border-left: 3px solid var(--accent);
+      padding: 0.65rem 0.85rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.88rem;
+    }
+    .error-box {
+      display: none;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid var(--danger);
+      color: #fecaca;
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      margin-bottom: 1rem;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+    }
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title-group">
+        <h1>🛵 Food Delivery ETA Prediction System</h1>
+        <p>CSL236 End-Term MLOps Project &bull; Madhavan Dixit &amp; Khushi Gupta (The NorthCap University)</p>
+      </div>
+      <div class="badge-bar">
+        <a class="badge" href="/docs" target="_blank">Swagger /docs</a>
+        <a class="badge" href="/health" target="_blank">GET /health</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Order &amp; Dispatch Parameters</h2>
+        <div class="presets">
+          <button type="button" class="preset-btn" onclick="applyPreset('fast')">⚡ Fast Clear Trip (2.5 km)</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('storm')">🌧️ Peak Stormy Jam (14.5 km)</button>
+          <button type="button" class="preset-btn danger" onclick="trigger422Demo()">🚫 Demo HTTP 422 Invalid Input</button>
+        </div>
+
+        <form id="etaForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="distance_km">Distance (km) [0.5 – 50.0]</label>
+              <input type="number" id="distance_km" step="0.1" min="0.5" max="50" value="5.2" required />
+            </div>
+            <div class="field">
+              <label for="Road_traffic_density">Road Traffic Density</label>
+              <select id="Road_traffic_density">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+                <option value="Jam">Jam</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="Weather_conditions">Weather Conditions</label>
+              <select id="Weather_conditions">
+                <option value="Sunny" selected>Sunny</option>
+                <option value="Cloudy">Cloudy</option>
+                <option value="Windy">Windy</option>
+                <option value="Fog">Fog</option>
+                <option value="Stormy">Stormy</option>
+                <option value="Sandstorms">Sandstorms</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="multiple_deliveries">Multiple Deliveries [0 – 3]</label>
+              <input type="number" id="multiple_deliveries" step="1" min="0" max="3" value="1" required />
+            </div>
+            <div class="field">
+              <label for="Delivery_person_Age">Courier Age [18 – 65]</label>
+              <input type="number" id="Delivery_person_Age" step="1" min="18" max="65" value="28" required />
+            </div>
+            <div class="field">
+              <label for="Delivery_person_Ratings">Courier Rating [1.0 – 5.0]</label>
+              <input type="number" id="Delivery_person_Ratings" step="0.1" min="1.0" max="5.0" value="4.7" required />
+            </div>
+            <div class="field">
+              <label for="Vehicle_condition">Vehicle Condition [0 – 3]</label>
+              <input type="number" id="Vehicle_condition" step="1" min="0" max="3" value="2" required />
+            </div>
+            <div class="field">
+              <label for="Type_of_vehicle">Vehicle Type</label>
+              <select id="Type_of_vehicle">
+                <option value="motorcycle" selected>motorcycle</option>
+                <option value="scooter">scooter</option>
+                <option value="electric_scooter">electric_scooter</option>
+                <option value="bicycle">bicycle</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="Type_of_order">Order Type</label>
+              <select id="Type_of_order">
+                <option value="Meal" selected>Meal</option>
+                <option value="Snack">Snack</option>
+                <option value="Drinks">Drinks</option>
+                <option value="Buffet">Buffet</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="Festival">Festival Day</label>
+              <select id="Festival">
+                <option value="No" selected>No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column: span 2;">
+              <label for="City">City Tier</label>
+              <select id="City">
+                <option value="Urban" selected>Urban</option>
+                <option value="Metropolitian">Metropolitian</option>
+                <option value="Semi-Urban">Semi-Urban</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="submit-btn">Predict Delivery ETA</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Predicted ETA &amp; Operational Tips</h2>
+        <div id="errorBox" class="error-box"></div>
+        <div class="eta-box">
+          <div class="eta-value" id="etaValue">-- min</div>
+          <div class="eta-window" id="etaWindow">Submit parameters to compute live ETA</div>
+        </div>
+        <h3 style="font-size: 0.95rem; margin-bottom: 0.65rem; color: var(--muted);">
+          Rule-Based Dispatch Recommendations
+        </h3>
+        <ul class="tips-list" id="tipsList">
+          <li>Select a preset or click <strong>Predict Delivery ETA</strong> to view actionable courier and dispatch tips.</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      Powered by FastAPI, Pydantic v2, Scikit-Learn &amp; MLflow SQLite Tracking &bull; Logs requests to <code>predictions.log</code> for Drift Monitoring
+    </footer>
+  </div>
+
+  <script>
+    function getPayload() {
+      return {
+        Delivery_person_Age: parseInt(document.getElementById('Delivery_person_Age').value, 10),
+        Delivery_person_Ratings: parseFloat(document.getElementById('Delivery_person_Ratings').value),
+        distance_km: parseFloat(document.getElementById('distance_km').value),
+        Weather_conditions: document.getElementById('Weather_conditions').value,
+        Road_traffic_density: document.getElementById('Road_traffic_density').value,
+        Vehicle_condition: parseInt(document.getElementById('Vehicle_condition').value, 10),
+        Type_of_order: document.getElementById('Type_of_order').value,
+        Type_of_vehicle: document.getElementById('Type_of_vehicle').value,
+        multiple_deliveries: parseInt(document.getElementById('multiple_deliveries').value, 10),
+        Festival: document.getElementById('Festival').value,
+        City: document.getElementById('City').value
+      };
+    }
+
+    function applyPreset(kind) {
+      if (kind === 'fast') {
+        document.getElementById('distance_km').value = 2.5;
+        document.getElementById('Road_traffic_density').value = 'Low';
+        document.getElementById('Weather_conditions').value = 'Sunny';
+        document.getElementById('multiple_deliveries').value = 0;
+        document.getElementById('Delivery_person_Age').value = 25;
+        document.getElementById('Delivery_person_Ratings').value = 4.9;
+        document.getElementById('Vehicle_condition').value = 3;
+        document.getElementById('Type_of_vehicle').value = 'motorcycle';
+        document.getElementById('Festival').value = 'No';
+        document.getElementById('City').value = 'Urban';
+      } else if (kind === 'storm') {
+        document.getElementById('distance_km').value = 14.5;
+        document.getElementById('Road_traffic_density').value = 'Jam';
+        document.getElementById('Weather_conditions').value = 'Stormy';
+        document.getElementById('multiple_deliveries').value = 2;
+        document.getElementById('Delivery_person_Age').value = 36;
+        document.getElementById('Delivery_person_Ratings').value = 4.1;
+        document.getElementById('Vehicle_condition').value = 1;
+        document.getElementById('Type_of_vehicle').value = 'scooter';
+        document.getElementById('Festival').value = 'Yes';
+        document.getElementById('City').value = 'Metropolitian';
+      }
+      submitPrediction(getPayload());
+    }
+
+    async function trigger422Demo() {
+      const badPayload = {
+        ...getPayload(),
+        distance_km: -5.0,
+        Delivery_person_Age: 12
+      };
+      await submitPrediction(badPayload);
+    }
+
+    async function submitPrediction(payload) {
+      const errorBox = document.getElementById('errorBox');
+      errorBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorBox.style.display = 'block';
+          errorBox.textContent = `HTTP ${res.status} Unprocessable Entity (Pydantic Data Contract Blocked Invalid Input):\n` +
+            JSON.stringify(data.detail, null, 2);
+          return;
+        }
+
+        document.getElementById('etaValue').textContent = `${data.predicted_eta_min.toFixed(1)} min`;
+        document.getElementById('etaWindow').textContent = `Expected Arrival Window: ${data.eta_window_min}`;
+
+        const tipsList = document.getElementById('tipsList');
+        tipsList.innerHTML = '';
+        data.tips.forEach(tip => {
+          const li = document.createElement('li');
+          li.textContent = tip;
+          tipsList.appendChild(li);
+        });
+      } catch (err) {
+        errorBox.style.display = 'block';
+        errorBox.textContent = 'Request failed: ' + err.message;
+      }
+    }
+
+    document.getElementById('etaForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitPrediction(getPayload());
+    });
+  </script>
+</body>
+</html>
