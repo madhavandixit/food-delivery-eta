@@ -3,203 +3,363 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Food Delivery ETA Prediction System | CSL236 MLOps</title>
+  <title>Food Delivery ETA Prediction System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --card-border: #334155;
-      --accent: #f97316;
-      --accent-hover: #ea580c;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --success: #22c55e;
-      --danger: #ef4444;
+      --bg: #140d09;
+      --panel: #1d130d;
+      --input-bg: #110b07;
+      --border: rgba(245, 224, 204, 0.18);
+      --border-strong: rgba(245, 224, 204, 0.5);
+      --text: #faf3eb;
+      --muted: #b59d87;
+      --accent: #e6ccb2;
+      --danger: #ff5a4f;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, rgba(230, 204, 178, 0.08) 0%, transparent 65%);
       color: var(--text);
-      line-height: 1.5;
-      padding: 2rem 1rem;
+      min-height: 100vh;
+      padding: 2.5rem 2rem;
+      -webkit-font-smoothing: antialiased;
     }
+
     .container {
-      max-width: 1080px;
+      max-width: 1180px;
       margin: 0 auto;
     }
+
     header {
       display: flex;
-      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.75rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--card-border);
-    }
-    .title-group h1 {
-      font-size: 1.65rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .title-group p {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .badge-bar {
-      display: flex;
-      gap: 0.6rem;
       flex-wrap: wrap;
+      gap: 1.5rem;
+      padding-bottom: 1.75rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
     }
-    .badge {
-      background: rgba(249, 115, 22, 0.15);
-      border: 1px solid rgba(249, 115, 22, 0.4);
-      color: #fdba74;
-      padding: 0.3rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .title-group::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 2.3rem;
+      background: linear-gradient(180deg, #faf3eb 0%, #c89f78 100%);
+      box-shadow: 0 0 14px rgba(230, 204, 178, 0.45);
+    }
+
+    .title-group h1 {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      line-height: 1.1;
+      background: linear-gradient(90deg, #ffffff 0%, #f5e0cc 55%, #d4a373 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 24px rgba(230, 204, 178, 0.16);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .ghost-link {
+      display: inline-block;
+      padding: 0.55rem 1.1rem;
+      border: 1px solid var(--border);
+      color: var(--text);
       text-decoration: none;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      transition: all 0.2s ease;
     }
+
+    .ghost-link:hover {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 1.35fr 1fr;
-      gap: 1.5rem;
+      gap: 2rem;
     }
-    @media (max-width: 860px) {
-      .grid { grid-template-columns: 1fr; }
+
+    @media (max-width: 920px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 1.5rem;
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 2rem;
     }
-    .card h2 {
-      font-size: 1.15rem;
-      margin-bottom: 1rem;
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+
     .presets {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.2rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin-bottom: 1.75rem;
     }
+
+    @media (max-width: 640px) {
+      .presets {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .preset-btn {
-      background: #0f172a;
+      background: transparent;
       color: var(--text);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.8rem;
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.2s ease;
     }
+
     .preset-btn:hover {
-      border-color: var(--accent);
-      color: #fdba74;
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
     }
+
+    .preset-btn.danger {
+      border-color: rgba(255, 90, 79, 0.45);
+      color: #ff8a80;
+    }
+
     .preset-btn.danger:hover {
+      background: var(--danger);
+      color: #ffffff;
       border-color: var(--danger);
-      color: #fca5a5;
     }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.95rem;
+      gap: 1.15rem 1.25rem;
     }
-    @media (max-width: 540px) {
-      .form-grid { grid-template-columns: 1fr; }
+
+    @media (max-width: 560px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
     }
+
     .field {
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 0.45rem;
     }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
     .field label {
-      font-size: 0.82rem;
+      font-size: 0.68rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       color: var(--muted);
-      font-weight: 600;
     }
-    .field input, .field select {
-      background: #0f172a;
-      border: 1px solid var(--card-border);
+
+    .field input,
+    .field select {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
       color: var(--text);
-      padding: 0.55rem 0.7rem;
-      border-radius: 6px;
-      font-size: 0.92rem;
+      padding: 0.7rem 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      border-radius: 0;
+      appearance: none;
+      transition: border-color 0.2s ease;
     }
-    .field input:focus, .field select:focus {
+
+    .field input:focus,
+    .field select:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--text);
     }
+
     .submit-btn {
-      margin-top: 1.25rem;
+      margin-top: 1.75rem;
       width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.75rem;
-      font-size: 1rem;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--text);
+      padding: 0.95rem 1.5rem;
+      font-family: inherit;
+      font-size: 0.76rem;
       font-weight: 600;
-      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all 0.22s ease;
     }
-    .submit-btn:hover { background: var(--accent-hover); }
-    .eta-box {
+
+    .submit-btn:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .telemetry-box {
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      padding: 2.25rem 1.5rem;
       text-align: center;
-      padding: 1.5rem 1rem;
-      background: rgba(15, 23, 42, 0.7);
-      border-radius: 10px;
-      border: 1px solid var(--card-border);
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
     }
+
+    .telemetry-caption {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+
     .eta-value {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1.1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.5rem;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.05;
     }
+
     .eta-window {
-      margin-top: 0.35rem;
-      font-size: 0.9rem;
+      margin-top: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       color: var(--muted);
     }
+
     .tips-list {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 0.65rem;
+      margin-bottom: 2rem;
     }
+
     .tips-list li {
-      background: rgba(15, 23, 42, 0.6);
-      border-left: 3px solid var(--accent);
-      padding: 0.65rem 0.85rem;
-      border-radius: 0 6px 6px 0;
-      font-size: 0.88rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--accent);
+      padding: 0.75rem 0.95rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #ede0d4;
     }
+
+    .metrics-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .metric-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .metric-header span:last-child {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+    }
+
+    .metric-bar-bg {
+      background: rgba(245, 224, 204, 0.1);
+      height: 3px;
+      width: 100%;
+    }
+
+    .metric-bar-fill {
+      background: var(--accent);
+      height: 100%;
+    }
+
     .error-box {
       display: none;
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid var(--danger);
-      color: #fecaca;
-      padding: 0.9rem;
-      border-radius: 8px;
-      font-size: 0.83rem;
-      margin-bottom: 1rem;
-      white-space: pre-wrap;
-      font-family: Consolas, monospace;
+      background: rgba(255, 90, 79, 0.08);
+      border: 1px solid rgba(255, 90, 79, 0.55);
+      border-left: 3px solid var(--danger);
+      color: #ffcfc9;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.76rem;
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
     }
-    footer {
-      margin-top: 2rem;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.82rem;
+
+    .error-title {
+      color: var(--danger);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+      display: flex;
+      justify-content: space-between;
     }
   </style>
 </head>
@@ -207,32 +367,35 @@
   <div class="container">
     <header>
       <div class="title-group">
-        <h1>🛵 Food Delivery ETA Prediction System</h1>
-        <p>CSL236 End-Term MLOps Project &bull; Madhavan Dixit &amp; Khushi Gupta (The NorthCap University)</p>
+        <h1>Food Delivery ETA Prediction System</h1>
       </div>
-      <div class="badge-bar">
-        <a class="badge" href="/docs" target="_blank">Swagger /docs</a>
-        <a class="badge" href="/health" target="_blank">GET /health</a>
+      <div class="nav-links">
+        <a class="ghost-link" href="/docs" target="_blank">API Docs</a>
+        <a class="ghost-link" href="/health" target="_blank">System Health</a>
       </div>
     </header>
 
     <div class="grid">
-      <div class="card">
-        <h2>Order &amp; Dispatch Parameters</h2>
-        <div class="presets">
-          <button type="button" class="preset-btn" onclick="applyPreset('fast')">⚡ Fast Clear Trip (2.5 km)</button>
-          <button type="button" class="preset-btn" onclick="applyPreset('storm')">🌧️ Peak Stormy Jam (14.5 km)</button>
-          <button type="button" class="preset-btn danger" onclick="trigger422Demo()">🚫 Demo HTTP 422 Invalid Input</button>
+      <div class="panel">
+        <div class="section-label">
+          <span>Dispatch Parameters</span>
+          <span>Input Vector</span>
         </div>
 
-        <form id="etaForm">
+        <div class="presets">
+          <button type="button" class="preset-btn" onclick="applyPreset('fast')">Clear Trip (2.5 km)</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('storm')">Severe Jam (14.5 km)</button>
+          <button type="button" class="preset-btn danger" onclick="trigger422Demo()">Test HTTP 422</button>
+        </div>
+
+        <form id="etaForm" novalidate>
           <div class="form-grid">
             <div class="field">
-              <label for="distance_km">Distance (km) [0.5 – 50.0]</label>
+              <label for="distance_km">Distance (km) [0.5 - 50.0]</label>
               <input type="number" id="distance_km" step="0.1" min="0.5" max="50" value="5.2" required />
             </div>
             <div class="field">
-              <label for="Road_traffic_density">Road Traffic Density</label>
+              <label for="Road_traffic_density">Traffic Density</label>
               <select id="Road_traffic_density">
                 <option value="Low">Low</option>
                 <option value="Medium" selected>Medium</option>
@@ -241,7 +404,7 @@
               </select>
             </div>
             <div class="field">
-              <label for="Weather_conditions">Weather Conditions</label>
+              <label for="Weather_conditions">Weather Condition</label>
               <select id="Weather_conditions">
                 <option value="Sunny" selected>Sunny</option>
                 <option value="Cloudy">Cloudy</option>
@@ -252,23 +415,23 @@
               </select>
             </div>
             <div class="field">
-              <label for="multiple_deliveries">Multiple Deliveries [0 – 3]</label>
+              <label for="multiple_deliveries">Stacked Deliveries [0 - 3]</label>
               <input type="number" id="multiple_deliveries" step="1" min="0" max="3" value="1" required />
             </div>
             <div class="field">
-              <label for="Delivery_person_Age">Courier Age [18 – 65]</label>
+              <label for="Delivery_person_Age">Courier Age [18 - 65]</label>
               <input type="number" id="Delivery_person_Age" step="1" min="18" max="65" value="28" required />
             </div>
             <div class="field">
-              <label for="Delivery_person_Ratings">Courier Rating [1.0 – 5.0]</label>
+              <label for="Delivery_person_Ratings">Courier Rating [1.0 - 5.0]</label>
               <input type="number" id="Delivery_person_Ratings" step="0.1" min="1.0" max="5.0" value="4.7" required />
             </div>
             <div class="field">
-              <label for="Vehicle_condition">Vehicle Condition [0 – 3]</label>
+              <label for="Vehicle_condition">Vehicle Condition [0 - 3]</label>
               <input type="number" id="Vehicle_condition" step="1" min="0" max="3" value="2" required />
             </div>
             <div class="field">
-              <label for="Type_of_vehicle">Vehicle Type</label>
+              <label for="Type_of_vehicle">Vehicle Class</label>
               <select id="Type_of_vehicle">
                 <option value="motorcycle" selected>motorcycle</option>
                 <option value="scooter">scooter</option>
@@ -277,7 +440,7 @@
               </select>
             </div>
             <div class="field">
-              <label for="Type_of_order">Order Type</label>
+              <label for="Type_of_order">Order Category</label>
               <select id="Type_of_order">
                 <option value="Meal" selected>Meal</option>
                 <option value="Snack">Snack</option>
@@ -286,14 +449,14 @@
               </select>
             </div>
             <div class="field">
-              <label for="Festival">Festival Day</label>
+              <label for="Festival">Festival Surge</label>
               <select id="Festival">
                 <option value="No" selected>No</option>
                 <option value="Yes">Yes</option>
               </select>
             </div>
-            <div class="field" style="grid-column: span 2;">
-              <label for="City">City Tier</label>
+            <div class="field full">
+              <label for="City">Urban Zone</label>
               <select id="City">
                 <option value="Urban" selected>Urban</option>
                 <option value="Metropolitian">Metropolitian</option>
@@ -301,59 +464,64 @@
               </select>
             </div>
           </div>
-          <button type="submit" class="submit-btn">Predict Delivery ETA</button>
+          <button type="submit" class="submit-btn">Compute Telemetry ETA</button>
         </form>
       </div>
 
-      <div class="card">
-        <h2>Predicted ETA &amp; Operational Tips</h2>
-        <div id="errorBox" class="error-box"></div>
-        <div class="eta-box">
-          <div class="eta-value" id="etaValue">-- min</div>
-          <div class="eta-window" id="etaWindow">Submit parameters to compute live ETA</div>
+      <div class="panel">
+        <div class="section-label">
+          <span>Telemetry Output</span>
+          <span>Live Inference</span>
         </div>
-        <h3 style="font-size: 0.95rem; margin-bottom: 0.65rem; color: var(--muted);">
-          Rule-Based Dispatch Recommendations
-        </h3>
+
+        <div id="errorBox" class="error-box"></div>
+
+        <div class="telemetry-box">
+          <div class="telemetry-caption">Estimated Transit Duration</div>
+          <div class="eta-value" id="etaValue">--.- MIN</div>
+          <div class="eta-window" id="etaWindow">Awaiting Dispatch Vector</div>
+        </div>
+
+        <div class="section-label">
+          <span>Operational Directives</span>
+          <span>Rule Engine</span>
+        </div>
         <ul class="tips-list" id="tipsList">
-          <li>Select a preset or click <strong>Predict Delivery ETA</strong> to view actionable courier and dispatch tips.</li>
+          <li>Select a preset vector or execute <strong>Compute Telemetry ETA</strong> to generate dispatch advisories.</li>
         </ul>
 
-        <h3 style="font-size: 0.95rem; margin: 1.35rem 0 0.65rem; color: var(--muted);">
-          Model Feature Importance (Gradient Boosting Champion)
-        </h3>
-        <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.8rem;">
-          <div>
-            <div style="display:flex; justify-content:space-between;"><span>Courier Ratings</span><span>23.1%</span></div>
-            <div style="background:#0f172a; height:7px; border-radius:4px; overflow:hidden;"><div style="width:23.1%; background:var(--accent); height:100%;"></div></div>
+        <div class="section-label">
+          <span>Feature Attribution</span>
+          <span>Gradient Boosting</span>
+        </div>
+        <div class="metrics-stack">
+          <div class="metric-row">
+            <div class="metric-header"><span>Courier Ratings</span><span>23.1%</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" style="width:23.1%;"></div></div>
           </div>
-          <div>
-            <div style="display:flex; justify-content:space-between;"><span>Weather Conditions</span><span>17.0%</span></div>
-            <div style="background:#0f172a; height:7px; border-radius:4px; overflow:hidden;"><div style="width:17.0%; background:var(--accent); height:100%;"></div></div>
+          <div class="metric-row">
+            <div class="metric-header"><span>Weather Conditions</span><span>17.0%</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" style="width:17.0%;"></div></div>
           </div>
-          <div>
-            <div style="display:flex; justify-content:space-between;"><span>Road Traffic Density</span><span>16.3%</span></div>
-            <div style="background:#0f172a; height:7px; border-radius:4px; overflow:hidden;"><div style="width:16.3%; background:var(--accent); height:100%;"></div></div>
+          <div class="metric-row">
+            <div class="metric-header"><span>Traffic Density</span><span>16.3%</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" style="width:16.3%;"></div></div>
           </div>
-          <div>
-            <div style="display:flex; justify-content:space-between;"><span>Multiple Deliveries</span><span>11.5%</span></div>
-            <div style="background:#0f172a; height:7px; border-radius:4px; overflow:hidden;"><div style="width:11.5%; background:var(--accent); height:100%;"></div></div>
+          <div class="metric-row">
+            <div class="metric-header"><span>Stacked Deliveries</span><span>11.5%</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" style="width:11.5%;"></div></div>
           </div>
-          <div>
-            <div style="display:flex; justify-content:space-between;"><span>Distance (km)</span><span>11.1%</span></div>
-            <div style="background:#0f172a; height:7px; border-radius:4px; overflow:hidden;"><div style="width:11.1%; background:var(--accent); height:100%;"></div></div>
+          <div class="metric-row">
+            <div class="metric-header"><span>Distance (km)</span><span>11.1%</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" style="width:11.1%;"></div></div>
           </div>
-          <div>
-            <div style="display:flex; justify-content:space-between;"><span>Courier Age &amp; Vehicle Condition</span><span>18.5%</span></div>
-            <div style="background:#0f172a; height:7px; border-radius:4px; overflow:hidden;"><div style="width:18.5%; background:var(--accent); height:100%;"></div></div>
+          <div class="metric-row">
+            <div class="metric-header"><span>Courier Age &amp; Vehicle</span><span>18.5%</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" style="width:18.5%;"></div></div>
           </div>
         </div>
       </div>
     </div>
-
-    <footer>
-      Powered by FastAPI, Pydantic v2, Scikit-Learn &amp; MLflow SQLite Tracking &bull; Logs requests to <code>predictions.log</code> for Drift Monitoring
-    </footer>
   </div>
 
   <script>
@@ -401,12 +569,9 @@
     }
 
     async function trigger422Demo() {
-      const badPayload = {
-        ...getPayload(),
-        distance_km: -5.0,
-        Delivery_person_Age: 12
-      };
-      await submitPrediction(badPayload);
+      document.getElementById('distance_km').value = -5.0;
+      document.getElementById('Delivery_person_Age').value = 12;
+      await submitPrediction(getPayload());
     }
 
     async function submitPrediction(payload) {
@@ -423,13 +588,23 @@
 
         if (!res.ok) {
           errorBox.style.display = 'block';
-          errorBox.textContent = `HTTP ${res.status} Unprocessable Entity (Pydantic Data Contract Blocked Invalid Input):\n` +
-            JSON.stringify(data.detail, null, 2);
+          const items = Array.isArray(data.detail)
+            ? data.detail.map(err => {
+                const field = err.loc ? err.loc[err.loc.length - 1] : 'input';
+                return `&bull; <strong>${field}</strong>: ${err.msg} (received: <code>${err.input}</code>)`;
+              }).join('<br/>')
+            : JSON.stringify(data.detail);
+
+          errorBox.innerHTML =
+            `<div class="error-title"><span>HTTP ${res.status} Unprocessable Entity</span><span>Pydantic Guard</span></div>` +
+            `<div>${items}</div>`;
+          document.getElementById('etaValue').textContent = 'REJECTED';
+          document.getElementById('etaWindow').textContent = 'DATA CONTRACT VIOLATION (HTTP 422)';
           return;
         }
 
-        document.getElementById('etaValue').textContent = `${data.predicted_eta_min.toFixed(1)} min`;
-        document.getElementById('etaWindow').textContent = `Expected Arrival Window: ${data.eta_window_min}`;
+        document.getElementById('etaValue').textContent = `${data.predicted_eta_min.toFixed(1)} MIN`;
+        document.getElementById('etaWindow').textContent = `WINDOW: ${data.eta_window_min}`;
 
         const tipsList = document.getElementById('tipsList');
         tipsList.innerHTML = '';
@@ -440,7 +615,7 @@
         });
       } catch (err) {
         errorBox.style.display = 'block';
-        errorBox.textContent = 'Request failed: ' + err.message;
+        errorBox.textContent = 'REQUEST FAILED: ' + err.message;
       }
     }
 
