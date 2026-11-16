@@ -194,18 +194,27 @@ def main() -> None:
     )
 
     if os.path.exists("mlflow.db"):
-        with sqlite3.connect("mlflow.db") as conn:
-            rows = conn.execute("SELECT experiment_id FROM experiments").fetchall()
-            for (exp_id,) in rows:
-                uri = pathlib.Path(f"mlruns/{exp_id}").resolve().as_uri()
-                conn.execute(
-                    "UPDATE experiments SET artifact_location = ? WHERE experiment_id = ?",
-                    (uri, exp_id),
-                )
-            conn.commit()
+        try:
+            with sqlite3.connect("mlflow.db") as conn:
+                rows = conn.execute("SELECT experiment_id FROM experiments").fetchall()
+                for (exp_id,) in rows:
+                    uri = pathlib.Path(f"mlruns/{exp_id}").resolve().as_uri()
+                    conn.execute(
+                        "UPDATE experiments SET artifact_location = ? WHERE experiment_id = ?",
+                        (uri, exp_id),
+                    )
+                conn.commit()
+        except Exception:
+            os.remove("mlflow.db")
 
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT_NAME)
+    try:
+        mlflow.set_experiment(EXPERIMENT_NAME)
+    except Exception:
+        if os.path.exists("mlflow.db"):
+            os.remove("mlflow.db")
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        mlflow.set_experiment(EXPERIMENT_NAME)
 
     run_name = (
         f"{args.model_type}_n{args.n_estimators}_d{args.max_depth}"
@@ -213,7 +222,16 @@ def main() -> None:
         else f"ridge_alpha{args.alpha}"
     )
 
-    with mlflow.start_run(run_name=run_name):
+    try:
+        active_run_ctx = mlflow.start_run(run_name=run_name)
+    except Exception:
+        if os.path.exists("mlflow.db"):
+            os.remove("mlflow.db")
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        mlflow.set_experiment(EXPERIMENT_NAME)
+        active_run_ctx = mlflow.start_run(run_name=run_name)
+
+    with active_run_ctx:
         mlflow.log_param("model_type", args.model_type)
         mlflow.log_param("n_estimators", args.n_estimators)
         mlflow.log_param("max_depth", args.max_depth)
